@@ -1,9 +1,5 @@
-const http = require('http')
-const port = 1664
+const data = require('./data')
+const server = require('./server')
 
-http.createServer(function (req, res) {
-  res.setHeader('Content-Type', 'application/json')
-  res.end(JSON.stringify({ hello: 'world' }))
-}).listen(port, function () {
-  console.log(`server start at port ${port}`)
-})
+data.fetchRecords()
+server.start()
