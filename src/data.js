@@ -43,7 +43,9 @@ async function findBoxContaining (object) {
     // console.table({name, brand, box, drawer, category})
     // TODO : implement better search than this :p
     if (name.toLowerCase().indexOf(object) > -1) {
-      return { name, brand, box, drawer, category }
+      const record = { name, brand, box, drawer, category }
+      console.log(`found "${object}" in record`, record)
+      return record
     }
   }
 }

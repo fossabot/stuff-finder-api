@@ -1,6 +1,7 @@
 {
   "author": "Romain Racamier-Lafon <romain.racamier@gmail.com>",
   "config": {
+    "debug": false,
     "port": "1664"
   },
   "dependencies": {
