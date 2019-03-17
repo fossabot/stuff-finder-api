@@ -1,15 +1,29 @@
 const http = require('http')
-const data = require('./data')
+const dialogflow = require('./dialogflow')
 const port = process.env.npm_package_config_port
 
 function onStart () {
   console.log(`server started on port ${port}`)
 }
 
+function answer (response, text) {
+  console.log(text)
+  response.end(text)
+}
+
 async function onRequest (request, response) {
-  response.setHeader('Content-Type', 'application/json')
-  const box = await data.findBoxContaining('pile')
-  response.end(JSON.stringify(box))
+  const host = request.headers.host
+
+  if (request.url !== '/df-webhook') {
+    return answer(response, `Api called from ${host} with non-handled route : ${request.url}`)
+  }
+
+  if (request.method !== 'POST') {
+    return answer(response, `DialogFlow webhook called from ${host} with non-handled method : ${request.method}`)
+  }
+
+  console.log(`handling DialogFlow POST from ${host}`)
+  dialogflow.handleRequest(request, response)
 }
 
 function start () {
