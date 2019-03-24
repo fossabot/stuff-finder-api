@@ -22,9 +22,6 @@ const fuseConf = {
   }]
 }
 
-let fuse = null
-let records = null
-
 // prepare oauth2 client
 const auth = new google.auth.OAuth2(
   creds.client_id,
@@ -43,27 +40,26 @@ async function fetchRecords () {
   // create sheets client
   const sheets = google.sheets({ version: 'v4', auth })
   // get a range of values
-  const res = await sheets.spreadsheets.values.get({
+  const rows = await sheets.spreadsheets.values.get({
     spreadsheetId: creds.spreadsheet_id,
     range: creds.spreadsheet_range
   })
   // print results
   // console.log(JSON.stringify(res.data, null, 2))
-  records = []
-  for (let [name, brand, box, drawer, category] of res.data.values) {
+  const records = []
+  for (let [name, brand, box, drawer, category] of rows.data.values) {
     const record = { name, brand, box, drawer, category }
     records.push(record)
   }
-  fuse = new Fuse(records, fuseConf)
-  console.log(records.length, 'records updated')
+  const fuse = new Fuse(records, fuseConf)
+  console.log(records.length, 'records found on spreadsheet')
+  return fuse
 }
 
 async function findBoxContaining (object) {
-  if (!fuse) {
-    console.error('cannot find object without index')
-    return {}
-  }
-  const results = fuse.search(object)
+  console.log('user search :', object)
+  const records = await fetchRecords()
+  const results = records.search(object)
   if (results.length) {
     console.log(`fuse found ${results.length} record(s)`, results)
     return results[0]
@@ -71,4 +67,4 @@ async function findBoxContaining (object) {
   console.log('fuse found nothing')
 }
 
-module.exports = { findBoxContaining, fetchRecords }
+module.exports = { findBoxContaining }
