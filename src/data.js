@@ -1,26 +1,8 @@
-
+const search = require('./search')
 const { google } = require('googleapis')
-const Fuse = require('fuse.js')
 
 const creds = require('../creds.json')
 // console.log('using creds', creds)
-
-const fuseConf = {
-  shouldSort: true,
-  includeScore: false,
-  threshold: 0.4,
-  location: 0,
-  distance: 100,
-  maxPatternLength: 32,
-  minMatchCharLength: 1,
-  keys: [{
-    name: 'name',
-    weight: 0.8
-  }, {
-    name: 'brand',
-    weight: 0.2
-  }]
-}
 
 // prepare oauth2 client
 const auth = new google.auth.OAuth2(
@@ -51,15 +33,14 @@ async function fetchRecords () {
     const record = { name, brand, box, drawer, category }
     records.push(record)
   }
-  const fuse = new Fuse(records, fuseConf)
   console.log(records.length, 'records found on spreadsheet')
-  return fuse
+  return records
 }
 
 async function findBoxContaining (object) {
   console.log('user search :', object)
   const records = await fetchRecords()
-  const results = records.search(object)
+  const results = search(object, records)
   if (results.length) {
     console.log(`fuse found ${results.length} record(s)`, results)
     return results[0]
