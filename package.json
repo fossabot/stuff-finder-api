@@ -5,6 +5,7 @@
     "port": "1664"
   },
   "dependencies": {
+    "fuse.js": "^3.4.4",
     "googleapis": "38.0.0"
   },
   "devDependencies": {

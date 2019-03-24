@@ -1,0 +1,8 @@
+{
+  "queryResult": {
+    "parameters": {
+      "object": ["eau"]
+    },
+    "fulfillmentText": "Dans { box }{ drawer }"
+  }
+}

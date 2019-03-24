@@ -1,9 +1,28 @@
 
 const { google } = require('googleapis')
+const Fuse = require('fuse.js')
 
 const creds = require('../creds.json')
 // console.log('using creds', creds)
 
+const fuseConf = {
+  shouldSort: true,
+  includeScore: false,
+  threshold: 0.4,
+  location: 0,
+  distance: 100,
+  maxPatternLength: 32,
+  minMatchCharLength: 1,
+  keys: [{
+    name: 'name',
+    weight: 0.8
+  }, {
+    name: 'brand',
+    weight: 0.2
+  }]
+}
+
+let fuse = null
 let records = null
 
 // prepare oauth2 client
@@ -30,24 +49,26 @@ async function fetchRecords () {
   })
   // print results
   // console.log(JSON.stringify(res.data, null, 2))
-  console.log('records updated')
-  records = res.data.values
+  records = []
+  for (let [name, brand, box, drawer, category] of res.data.values) {
+    const record = { name, brand, box, drawer, category }
+    records.push(record)
+  }
+  fuse = new Fuse(records, fuseConf)
+  console.log(records.length, 'records updated')
 }
 
 async function findBoxContaining (object) {
-  if (!records.length) {
-    console.error('cannot find object without records')
+  if (!fuse) {
+    console.error('cannot find object without index')
     return {}
   }
-  for (let [name, brand, box, drawer, category] of records) {
-    // console.table({name, brand, box, drawer, category})
-    // TODO : implement better search than this :p
-    if (name.toLowerCase().indexOf(object) > -1) {
-      const record = { name, brand, box, drawer, category }
-      console.log(`found "${object}" in record`, record)
-      return record
-    }
+  const results = fuse.search(object)
+  if (results.length) {
+    console.log(`fuse found ${results.length} record(s)`, results)
+    return results[0]
   }
+  console.log('fuse found nothing')
 }
 
 module.exports = { findBoxContaining, fetchRecords }
