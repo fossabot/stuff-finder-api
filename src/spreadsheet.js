@@ -1,7 +1,7 @@
 
 const { google } = require('googleapis')
 
-const creds = require('../creds.json')
+const creds = require('creds.json')
 // console.log('using creds', creds)
 
 // prepare oauth2 client
